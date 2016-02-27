@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <style></style>
+    <title>2048game</title>
+    <link href="styles/style.css" rel="stylesheet" type="text/css"/>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <!--<script type="text/javascript" src="support.js"></script>-->
+    <!--<script type="text/javascript" src="animation.js"></script>-->
+    <script type="text/javascript" src="scripts/main.js"></script>
+    <script type="text/javascript" src="game.js"></script>
+
+</head>
+<body>
+   <header>
+       <h1>2048</h1>
+       <a href="javascript:newgame();" id="newGameBtn">New Game</a>
+       <p>score: <span id="score">0</span></p>
+   </header>
+   <div id="board">
+       <div id="cell-0-0"  class="cell" num="2">2</div>
+       <div id="cell-0-1"  class="cell" num="no"></div>
+       <div id="cell-0-2"  class="cell" num="no"></div>
+       <div id="cell-0-3"  class="cell" num="no"></div>
+
+       <div id="cell-1-0"  class="cell" num="no"></div>
+       <div id="cell-1-1"  class="cell" num="4">4</div>
+       <div id="cell-1-2"  class="cell" num="256">256</div>
+       <div id="cell-1-3"  class="cell" num="no"></div>
+
+       <div id="cell-2-0"  class="cell" num="no"></div>
+       <div id="cell-2-1"  class="cell" num="no"></div>
+       <div id="cell-2-2"  class="cell" num="512">512</div>
+       <div id="cell-2-3"  class="cell" num="no"></div>
+
+       <div id="cell-3-0"  class="cell" num="2048">2048</div>
+       <div id="cell-3-1"  class="cell" num="1024">1024</div>
+       <div id="cell-3-2"  class="cell" num="no"></div>
+       <div id="cell-3-3"  class="cell" num="no"></div>
+   </div>
+</body>
+</html>
