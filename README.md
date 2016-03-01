@@ -1,2 +1,2 @@
 # 2048game
-in javascript
+慕课网学习
