@@ -1,8 +1,7 @@
 var board = new Array(),
     score = 0,
-    hasConflicted = new Array();//用于防止二次碰撞
+    hasConflicted = new Array();
 
-var startx, starty, endx, endy;//用于移动端触控操作
 
 screenWidth = $(window).width();
 gridContainerWidth = screenWidth * 0.92;
@@ -13,18 +12,14 @@ $(function () {
 });
 function newGame() {
     adjustForMobile();
-    //初始化
     init();
 }
 function adjustForMobile() {
-    //调整grid以根据适应移动端；
     if (screenWidth >= 500) {
-        //适用于网页
         gridContainerWidth = 500;
         cellWidth = 100;
         cellDistance = 20;
     }
-    //调整header部分样式
     $(".header").css("width", gridContainerWidth + "px");
     $(".header").css("left", cellWidth * 3 + "px");
     $(".header h2").css("margin-left", -(gridContainerWidth / 2 - cellDistance) + "px");
@@ -35,7 +30,6 @@ function adjustForMobile() {
         "height": gridContainerWidth + "px",
         "border-radius": gridContainerWidth * 0.02 + "px"
     });
-//调整grid-cell
     $(".grid-cell").css({
         "height": cellWidth + "px",
         "width": cellWidth + "px",
@@ -43,7 +37,6 @@ function adjustForMobile() {
     });
 }
 function init() {
-    //初始化函数
     score = 0;
     updateScore();
 
@@ -54,7 +47,6 @@ function init() {
         }
 
     }
-    //初始化board数据
     for (var i = 0; i < 4; i++) {
         board[i] = new Array();
         hasConflicted[i] = new Array();
@@ -66,20 +58,18 @@ function init() {
     generateOneNumber();
     generateOneNumber();
 
-    updateBoardView();
+    updateBoard();
 
 }
 
-function updateBoardView() {
-    //更新页面视图-即根据board生成所有 number-cell
+function updateBoard() {
     $(".number-cell").remove();
     for (var i = 0; i < 4; i++) {
         for (var j = 0; j < 4; j++) {
             $("#board").append('<div class="number-cell" id="number-cell-' + i + '-' + j + '"></div>');
-            var theNumberCell = $("#number-cell-" + i + "-" + j);//表示当前正在操作的cell
+            var theNumberCell = $("#number-cell-" + i + "-" + j);
 
             if (board[i][j] == 0) {
-                //此时不显示数字
                 theNumberCell.css("width", 0);
                 theNumberCell.css("height", 0);
                 theNumberCell.css("top", getPosTop(i, j) + cellWidth / 2);
@@ -97,62 +87,62 @@ function updateBoardView() {
                 "color": getNumberColor(board[i][j]),
                 "font-size": cellWidth * 0.65 + "px"
             });
-                theNumberCell.html(board[i][j]);
-                if (board[i][j] >= 128) {
-                    theNumberCell.css("font-size", cellWidth * 0.5);
-                }
+                theNumberCell.html(showWord(board[i][j]));
             }
             hasConflicted[i][j] = false;
         }
     }
 }
+function showWord(number){
+    switch(number){
+        case 2:return '清';
+        case 4:return '明';
+        case 8:return '元';
+        case 16:return '宋';
+        case 32:return '唐';
+        case 64:return '隋';
+        case 128:return '晋';
+        case 256:return '汉';
+        case 512:return '秦';
+        case 1024:return '周';
+        case 2048:return '商';
+    }
+
+}
 function generateOneNumber() {
-    //随机的在一个位置生成2或者4
-    if(!nospace(board))
     if (!nospace(board)) {
-        //随机一个位置
-        var randx = parseInt(Math.floor(Math.random() * 4));//向下取整
+        var randx = parseInt(Math.floor(Math.random() * 4));
         var randy = parseInt(Math.floor(Math.random() * 4));
-        var count = 0;
-        while (count < 40) {
-            //只循环40次，避免计算机一直找不到而循环
+        while (true) {
             if (board[randx][randy] == 0) {
                 break;
             }
             randx = parseInt(Math.floor(Math.random() * 4));
             randy = parseInt(Math.floor(Math.random() * 4));
         }
-        if (count == 39) {
-            //查找一个空位置
-            for (var i = 0; i < 4; i++) {
-                for (var j = 0; j < 4; j++) {
-                    if (board[i][j] == 0) {
-                        randx = i;
-                        randy = j;
-                    }
-                }
-            }
-        }
-        //随机2或4
         var randNumber = Math.random() < 0.6 ? 2 : 4;
-
-        //在随机位置显示随机数字
         board[randx][randy] = randNumber;
 
         showNumberWithAnimation(randx, randy, randNumber);
+        return false;
     }
     return true;
 }
 
 function isGameOver() {
     if (nospace(board) && noMove(board)) {
-        gameOver("Just Try Again!")
+        gameOver()
     }
 }
 
-function gameOver(text) {
+function gameOver() {
     generateOneNumber();
-    alert(text);
+    $("#board").append("<div id='gameover' class='gameover'><p>本次得分</p><span>"+score+
+    "</span><a href='javascript:restartgame();'id='restartgamebutton'>Restart</a></div>");
+    var gameover=$("#gameover");
+    gameover.css("width","500px");
+    gameover.css("height","500px");
+    gameover.css("background-color","rgba(0,0,0,0.5)");
 }
 function isWinGame(board) {
     for (var i = 0; i < 4; i++) {
@@ -165,31 +155,30 @@ function isWinGame(board) {
     return false;
 }
 
-//键盘操作
 $(document).keydown(function (event) {
     switch (event.keyCode) {
-        case 37://left
-            event.preventDefault();//阻止默认的方向键，避免滚动条出现
+        case 37:
+            event.preventDefault();
             if (moveLeft()) {
                 setTimeout(generateOneNumber(), 220);
                 setTimeout(isGameOver(), 220);
             }
             break;
-        case 38://up
+        case 38:
             event.preventDefault();
             if (moveUp()) {
                 setTimeout(generateOneNumber(), 210);
                 setTimeout(isGameOver(), 220);
             }
             break;
-        case 39://right
+        case 39:
             event.preventDefault();
             if (moveRight()) {
                 setTimeout(generateOneNumber(), 210);
                 setTimeout(isGameOver(), 220);
             }
             break;
-        case 40://down
+        case 40:
             event.preventDefault();
             if (moveDown()) {
                 setTimeout(generateOneNumber(), 210);
@@ -226,15 +215,14 @@ function moveLeft() {
                         score += board[i][k];
                         updateScore();
                         if (isWinGame(board)) {
-                            gameOver("You Get 2048!");
+                            winGameOver();
                         }
-                        continue;
                     }
                 }
             }
         }
     }
-    setTimeout(updateBoardView(), 210);
+    setTimeout(updateBoard(), 200);
     return true;
 }
 
@@ -264,15 +252,14 @@ function moveUp() {
                         score += board[k][j];
                         updateScore();
                         if (isWinGame(board)) {
-                            gameOver("You Get 2048!");
+                            winGameOver();
                         }
-                        continue;
                     }
                 }
             }
         }
     }
-    setTimeout(updateBoardView(), 220);
+    setTimeout(updateBoard(), 200);
     return true;
 }
 function moveRight() {
@@ -301,15 +288,14 @@ function moveRight() {
                         score += board[i][k];
                         updateScore();
                         if (isWinGame(board)) {
-                            gameOver("You Get 2048!");
+                            winGameOver();
                         }
-                        continue;
                     }
                 }
             }
         }
     }
-    setTimeout(updateBoardView(), 500);
+    setTimeout(updateBoard(), 200);
     return true;
 }
 function moveDown() {
@@ -338,19 +324,17 @@ function moveDown() {
                         score += board[k][j];
                         updateScore();
                         if (isWinGame(board)) {
-                            gameOver("You Get 2048!");
+                            winGameOver();
                         }
-                        continue;
                     }
                 }
             }
         }
     }
-    setTimeout(updateBoardView(), 220);
+    setTimeout(updateBoard(), 200);
     return true;
 }
 function updateScore() {
-    //更新分数
     $("#score").html(score);
 }
 
@@ -362,7 +346,6 @@ function getPosLeft(i, j) {
 }
 
 function getNumberBackgroundColor(number) {
-//根据数字返回背景色
     switch (number) {
         case 2:
             return "#EEE4DA";
@@ -403,14 +386,12 @@ return "#FC6";
 }
 
 function getNumberColor(number) {
-    //根据数字返回前景色
     if (number <= 4) {
         return "#776E65";
     }
     return "#F9F6F2";
 }
 function nospace(board) {
-    //判断棋盘格里是否还有空间
     for (var i = 0; i < 4; i++) {
         for (var j = 0; j < 4; j++) {
             if (board[i][j] == 0) {
@@ -421,7 +402,6 @@ function nospace(board) {
     return true;
 }
 function noMove(board) {
-    //判断棋盘格里是否还能移动
     if (canMoveLeft(board) ||
         canMoveUp(board) ||
         canMoveRight(board) ||
@@ -506,7 +486,7 @@ function showNumberWithAnimation(i, j, randNumber) {
     numberCell.css("border-radius", gridContainerWidth * 0.02 + "px");
     numberCell.css("line-height", cellWidth + "px");
     numberCell.css("font-size", cellWidth * 0.65 + "px");
-    numberCell.html(board[i][j]);
+    numberCell.html(showWord(board[i][j]));
     numberCell.animate({
         width: cellWidth,
         height: cellWidth,
@@ -522,3 +502,95 @@ function showMoveAnimation(fromx, fromy, tox, toy) {
         left: getPosLeft(tox, toy)
     }, 100)
 }
+
+function winGameOver(){
+    alert("you win!");
+}
+
+function restartgame(){
+    $("#gameover").remove();
+    updateScore(0);
+    newGame();
+}
+
+
+//移动端操作
+function GetSlideAngle(dx, dy) {
+    return Math.atan2(dy, dx) * 180 / Math.PI;
+}
+
+//根据起点和终点返回方向 1：向上，2：向下，3：向左，4：向右,0：未滑动
+function GetSlideDirection(startX, startY, endX, endY) {
+    var dy = startY - endY;
+    var dx = endX - startX;
+    var result = 0;
+
+    //如果滑动距离太短
+    if(Math.abs(dx) < 2 && Math.abs(dy) < 2) {
+        return result;
+    }
+
+    var angle = GetSlideAngle(dx, dy);
+    if(angle >= -45 && angle < 45) {
+        result = 4;
+    }else if (angle >= 45 && angle < 135) {
+        result = 1;
+    }else if (angle >= -135 && angle < -45) {
+        result = 2;
+    }
+    else if ((angle >= 135 && angle <= 180) || (angle >= -180 && angle < -135)) {
+        result = 3;
+    }
+
+    return result;
+}
+
+//滑动处理
+var startX, startY;
+document.addEventListener('touchstart',function (ev) {
+    //bodyScroll(e);
+    event.preventDefault();
+    startX = ev.touches[0].pageX;
+    startY = ev.touches[0].pageY;
+}, false);
+document.addEventListener('touchend',function (ev) {
+    //event.preventDefault();
+    //bodyScroll(e);
+    var endX, endY;
+    endX = ev.changedTouches[0].pageX;
+    endY = ev.changedTouches[0].pageY;
+    var direction = GetSlideDirection(startX, startY, endX, endY);
+    switch(direction) {
+        case 0:
+            break;
+        case 1:
+            //event.preventDefault();
+            if (moveUp()) {
+                setTimeout(generateOneNumber(), 220);
+                setTimeout(isGameOver(), 220);
+            }
+            break;
+        case 2:
+            //event.preventDefault();
+            if (moveDown()) {
+                setTimeout(generateOneNumber(), 220);
+                setTimeout(isGameOver(), 220);
+            }
+            break;
+        case 3:
+            //event.preventDefault();
+            if (moveLeft()) {
+                setTimeout(generateOneNumber(), 220);
+                setTimeout(isGameOver(), 220);
+            }
+            break;
+        case 4:
+            //event.preventDefault();
+            if (moveRight()) {
+                setTimeout(generateOneNumber(), 220);
+                setTimeout(isGameOver(), 220);
+            }
+            break;
+        default:
+    }
+}, false);
